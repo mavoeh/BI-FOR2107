@@ -1,0 +1,109 @@
+version: 1
+status: ready_resting_state_phase1
+tiers:
+  rest_phase1_edges:
+    include_tasks: [rest]
+    description: Fourteen published Tozzi task-free connections retained as separate features.
+
+# Region codes and connections follow Tozzi et al. Supplementary Table 18.
+# Each two-ROI definition yields one Fisher-z transformed connection rather
+# than the circuit-wide averages used by the earlier exploratory analysis.
+features:
+  - name: D2D1_default_ampfc_ag_l_connectivity
+    circuit: default_mode
+    source_task: rest
+    modality: connectivity
+    equivalence: published_edge
+    rois: [Defaultmode_amPFC_M, Defaultmode_AG_L]
+    ready: true
+  - name: D1D3_default_ampfc_ag_r_connectivity
+    circuit: default_mode
+    source_task: rest
+    modality: connectivity
+    equivalence: published_edge
+    rois: [Defaultmode_amPFC_M, Defaultmode_AG_R]
+    ready: true
+  - name: D1D4_default_ampfc_pcc_connectivity
+    circuit: default_mode
+    source_task: rest
+    modality: connectivity
+    equivalence: published_edge
+    rois: [Defaultmode_amPFC_M, Defaultmode_PCC_M]
+    ready: true
+  - name: D2D4_default_ag_l_pcc_connectivity
+    circuit: default_mode
+    source_task: rest
+    modality: connectivity
+    equivalence: published_edge
+    rois: [Defaultmode_AG_L, Defaultmode_PCC_M]
+    ready: true
+  - name: D3D4_default_ag_r_pcc_connectivity
+    circuit: default_mode
+    source_task: rest
+    modality: connectivity
+    equivalence: published_edge
+    rois: [Defaultmode_AG_R, Defaultmode_PCC_M]
+    ready: true
+  - name: S1S3_salience_ai_l_amy_l_connectivity
+    circuit: salience
+    source_task: rest
+    modality: connectivity
+    equivalence: published_edge
+    rois: [Salience_AI_L, Salience_Amy_L]
+    ready: true
+  - name: S2S4_salience_ai_r_amy_r_connectivity
+    circuit: salience
+    source_task: rest
+    modality: connectivity
+    equivalence: published_edge
+    rois: [Salience_AI_R, Salience_Amy_R]
+    ready: true
+  - name: S1S2_salience_ai_l_ai_r_connectivity
+    circuit: salience
+    source_task: rest
+    modality: connectivity
+    equivalence: published_edge
+    rois: [Salience_AI_L, Salience_AI_R]
+    ready: true
+  - name: A2A1_attention_lpfc_l_mspfc_connectivity
+    circuit: attention
+    source_task: rest
+    modality: connectivity
+    equivalence: published_edge
+    rois: [Attention_LPFC_L, Attention_msPFC_M]
+    ready: true
+  - name: A3A1_attention_lpfc_r_mspfc_connectivity
+    circuit: attention
+    source_task: rest
+    modality: connectivity
+    equivalence: published_edge
+    rois: [Attention_LPFC_R, Attention_msPFC_M]
+    ready: true
+  - name: A4A2_attention_aipl_l_lpfc_l_connectivity
+    circuit: attention
+    source_task: rest
+    modality: connectivity
+    equivalence: published_edge
+    rois: [Attention_aIPL_L, Attention_LPFC_L]
+    ready: true
+  - name: A5A3_attention_aipl_r_lpfc_r_connectivity
+    circuit: attention
+    source_task: rest
+    modality: connectivity
+    equivalence: published_edge
+    rois: [Attention_aIPL_R, Attention_LPFC_R]
+    ready: true
+  - name: A4A6_attention_aipl_l_pcun_l_connectivity
+    circuit: attention
+    source_task: rest
+    modality: connectivity
+    equivalence: published_edge
+    rois: [Attention_aIPL_L, Attention_PCUN_L]
+    ready: true
+  - name: A5A7_attention_aipl_r_pcun_r_connectivity
+    circuit: attention
+    source_task: rest
+    modality: connectivity
+    equivalence: published_edge
+    rois: [Attention_aIPL_R, Attention_PCUN_R]
+    ready: true

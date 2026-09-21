@@ -1,0 +1,31 @@
+# Baseline mapping verified against Datenbank_Update_DataFreeze1-4-10012025.sav.
+# Only listed columns are loaded into deidentified analysis tables.
+subject_id: Proband
+session: null
+diagnosis: Group
+site: Site
+scanner: Site
+age: Alter
+sex: Geschlecht
+clinical_measures:
+  bdi_total: BDI_Sum
+  hama_total: HAMA_Sum
+  hamd17_total: HAMD_Sum17
+  hamd21_total: HAMD_Sum21
+diagnosis_groups:
+  MDD: [MDD, Angst und komorbid MDD]
+  anxiety:
+    - Angst und komorbid MDD
+    - Angst (Panikstörung mit oder ohne Agoraphobie, GAS, multiple spezifische Phobien, soziale Phobie)
+  HC: [Kontrolle]
+healthy_exclusion_indicators:
+  MDD_Current: [yes]
+  BD_Current: [yes]
+  Psychotic_current: [yes]
+  Generalized_Anxiety_Disorder_Current: [yes]
+  Panic_Disorder_Current: [yes]
+  Social_Anxiety_Disorder_Current: [yes]
+  Specific_phobia_current: [yes]
+  Agoraphobia_current: [yes]
+  OCD_Current: [yes]
+  PTSD_Current: [yes]

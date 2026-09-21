@@ -1,0 +1,15 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.coverage
+*.egg-info/
+.venv/
+derivatives/
+reports/
+work/
+config.local.yaml
+license.txt
+*.log
+data/
+

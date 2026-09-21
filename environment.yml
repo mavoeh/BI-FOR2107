@@ -1,0 +1,28 @@
+name: for2107-repro
+channels:
+  - conda-forge
+dependencies:
+  - python=3.12
+  - pip
+  - numpy=2.2.*
+  - pandas=2.2.*
+  - scipy=1.15.*
+  - scikit-learn=1.6.*
+  - statsmodels=0.14.*
+  - matplotlib=3.10.*
+  - seaborn=0.13.*
+  - nibabel=5.3.*
+  - nilearn=0.11.*
+  - pybids=0.18.*
+  - pyreadstat=1.2.*
+  - pyyaml=6.0.*
+  - jinja2=3.1.*
+  - weasyprint=65.*
+  - pytest=8.3.*
+  - pytest-cov=6.0.*
+  - ruff=0.11.*
+  - pip:
+      - neuroHarmonize==2.4.5
+      # neuroHarmonize imports this package at runtime but does not declare it.
+      - neuroCombat==0.2.12
+      - -e .

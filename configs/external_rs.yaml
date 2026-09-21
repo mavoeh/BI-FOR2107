@@ -1,0 +1,74 @@
+project:
+  name: for2107_tozzi_external_rs
+  root: ..
+  random_seed: 2107
+  mode: external_validation
+
+inputs:
+  bids_root: ../data/raw_examples
+  preprocessed_rest_root: ../data/preproc/rs
+  preprocessed_rest_pattern: sub-*_ses-*_filtered_func_data_clean_MNI.nii.gz
+  clinical_files:
+    - ../data/Datenbank_Update_DataFreeze1-4-10012025.sav
+    - ../data/Datenbank_DataFreeze3-4_Follow-Up_10012025.sav
+  primary_clinical_file: ../data/Datenbank_Update_DataFreeze1-4-10012025.sav
+  subject_map: null
+  events_root: null
+  fmriprep_derivatives: ../derivatives/fmriprep
+
+outputs:
+  root: ../derivatives/for2107_tozzi_external_rs
+  bids_staging: ../derivatives/bids_staging_external_rs
+  reports: ../reports/external_rs
+  work: ../work
+
+selection:
+  session: ses-01
+  clinical_diagnoses: [MDD, anxiety]
+  include_all_diagnoses: false
+  healthy_labels: [HC, healthy, control]
+  variable_map: variable_map.yaml
+  subject_id_prefix: sub-
+  subject_id_width: 4
+
+preprocessing:
+  backend: existing
+  execute: false
+  freesurfer_license: null
+  output_spaces: [MNI152NLin6Asym:res-2]
+  fd_threshold_mm: 0.5
+  max_high_motion_fraction: 0.25
+  missing_motion_policy: include_unassessed
+
+features:
+  tier: primary_multimodal
+  mapping: feature_map.yaml
+  tozzi_repository: https://github.com/leotozzi88/cluster_study_2023.git
+  tozzi_revision: 3e8d33df397d4854bd6860423bed88c546501eb7
+  roi_directory: ../derivatives/reference/tozzi_rois
+  input_is_cleaned: true
+  confounds: []
+  high_pass_hz: null
+  low_pass_hz: null
+  smoothing_fwhm_mm: 0
+  extraction_jobs: 8
+
+analysis:
+  candidate_clusters: [2, 3, 4, 5, 6]
+  selected_clusters: 3
+  null_iterations: 10000
+  permutation_iterations: 10000
+  subsample_iterations: 10000
+  subsample_fraction: 0.8
+  imputation_iterations: 1
+  n_jobs: 8
+  full_scale_iterations: 10000
+  minimum_reference_n: 20
+  # Exploratory smoke-test gate only; the planned production analysis requires
+  # the substantially larger clinical cohort described in the study protocol.
+  minimum_clustering_n: 15
+
+report:
+  title: FOR2107 external resting-state adaptation of Tozzi et al. (2024)
+  formats: [html, pdf]
+  theme: light

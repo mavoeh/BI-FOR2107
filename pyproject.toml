@@ -1,0 +1,48 @@
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name = "for2107-tozzi-repro"
+version = "0.1.0"
+description = "Pure-Python multimodal adaptation of Tozzi et al. for FOR2107"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+  "jinja2>=3.1",
+  "matplotlib>=3.8",
+  "nibabel>=5.2",
+  "nilearn>=0.11",
+  "numpy>=2.0",
+  "pandas>=2.2",
+  "pyreadstat>=1.2",
+  "pyyaml>=6.0",
+  "scikit-learn>=1.5",
+  "scipy>=1.13",
+  "seaborn>=0.13",
+  "statsmodels>=0.14",
+]
+
+[project.optional-dependencies]
+bids = ["pybids>=0.18"]
+harmonization = ["neuroHarmonize>=2.4", "neuroCombat>=0.2.12"]
+report = ["weasyprint>=62"]
+dev = ["pytest>=8", "pytest-cov>=5", "ruff>=0.8"]
+
+[project.scripts]
+for2107-repro = "for2107_repro.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/for2107_repro"]
+
+[tool.pytest.ini_options]
+addopts = "-q"
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+ignore = ["E501"]

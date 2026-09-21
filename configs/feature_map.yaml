@@ -1,0 +1,90 @@
+version: 1
+status: provisional_pending_events
+tiers:
+  primary_multimodal:
+    include_tasks: [rest, FM, AP]
+    description: Construct-aligned rest and affective-processing adaptation.
+  extended_multimodal:
+    include_tasks: [rest, FM, AP, ENC]
+    description: Primary features plus exploratory memory-encoding features.
+
+# Exact task contrasts must be added once FOR2107 event documentation arrives.
+# A row with `ready: false` is rejected by task feature extraction.
+features:
+  - name: default_mode_connectivity
+    circuit: default_mode
+    source_task: rest
+    modality: connectivity
+    equivalence: close
+    rois: [Defaultmode_AG_L, Defaultmode_AG_R, Defaultmode_PCC_M, Defaultmode_amPFC_M]
+    ready: true
+  - name: salience_connectivity
+    circuit: salience
+    source_task: rest
+    modality: connectivity
+    equivalence: close
+    rois: [Salience_AI_L, Salience_AI_R, Salience_Amy_L, Salience_Amy_R]
+    ready: true
+  - name: attention_connectivity
+    circuit: attention
+    source_task: rest
+    modality: connectivity
+    equivalence: close
+    rois: [Attention_LPFC_L, Attention_LPFC_R, Attention_PCUN_L, Attention_PCUN_R, Attention_aIPL_L, Attention_aIPL_R, Attention_msPFC_M]
+    ready: true
+  - name: face_matching_negative_affect_activation
+    circuit: negative_affect
+    source_task: FM
+    modality: activation
+    equivalence: adapted
+    rois: [Negativesad_AI_L, Negativesad_AI_R, Negativesad_Amy_L, Negativesad_Amy_R, Negativesad_pgACC_M]
+    contrast: null
+    ready: false
+  - name: face_matching_negative_affect_connectivity
+    circuit: negative_affect
+    source_task: FM
+    modality: connectivity
+    equivalence: adapted
+    rois: [Negativesad_AI_L, Negativesad_AI_R, Negativesad_Amy_L, Negativesad_Amy_R, Negativesad_pgACC_M]
+    contrast: null
+    ready: false
+  - name: affective_priming_threat_activation
+    circuit: negative_affect
+    source_task: AP
+    modality: activation
+    equivalence: adapted
+    rois: [Negativethreat_Amy_L, Negativethreat_Amy_R, Negativethreat_dACC_M]
+    contrast: null
+    ready: false
+  - name: affective_priming_threat_connectivity
+    circuit: negative_affect
+    source_task: AP
+    modality: connectivity
+    equivalence: adapted
+    rois: [Negativethreat_Amy_L, Negativethreat_Amy_R, Negativethreat_dACC_M]
+    contrast: null
+    ready: false
+  - name: affective_priming_positive_affect_activation
+    circuit: positive_affect
+    source_task: AP
+    modality: activation
+    equivalence: adapted
+    rois: [Positive_VS_L, Positive_VS_R, Positive_vMPFC_M]
+    contrast: null
+    ready: false
+  - name: affective_priming_positive_affect_connectivity
+    circuit: positive_affect
+    source_task: AP
+    modality: connectivity
+    equivalence: adapted
+    rois: [Positive_VS_L, Positive_VS_R, Positive_vMPFC_M]
+    contrast: null
+    ready: false
+  - name: encoding_memory_activation
+    circuit: memory
+    source_task: ENC
+    modality: activation
+    equivalence: exploratory_not_tozzi_equivalent
+    rois: []
+    contrast: null
+    ready: false

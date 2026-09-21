@@ -1,0 +1,69 @@
+project:
+  name: for2107_tozzi_primary
+  root: ..
+  random_seed: 2107
+  mode: full
+
+inputs:
+  bids_root: /path/to/full/bids
+  clinical_files: [/path/to/baseline.sav, /path/to/followup.sav]
+  primary_clinical_file: /path/to/baseline.sav
+  subject_map: /path/to/deidentified_subject_map.csv
+  events_root: null
+  fmriprep_derivatives: /path/to/derivatives/fmriprep
+
+outputs:
+  root: /path/to/derivatives/for2107_tozzi
+  bids_staging: /path/to/derivatives/bids_staging
+  reports: /path/to/reports
+  work: /path/to/work
+
+selection:
+  session: ses-01
+  clinical_diagnoses: [MDD, anxiety]
+  include_all_diagnoses: false
+  healthy_labels: [HC, healthy, control]
+  variable_map: variable_map.yaml
+  subject_id_prefix: sub-
+  subject_id_width: 4
+
+preprocessing:
+  backend: docker
+  execute: false
+  image: nipreps/fmriprep:25.1.4
+  freesurfer_license: /path/to/license.txt
+  output_spaces: [MNI152NLin2009cAsym:res-2]
+  fs_no_reconall: true
+  n_cpus: 16
+  memory_mb: 60000
+  fd_threshold_mm: 0.5
+  max_high_motion_fraction: 0.25
+
+features:
+  tier: primary_multimodal
+  mapping: feature_map.yaml
+  tozzi_repository: https://github.com/leotozzi88/cluster_study_2023.git
+  tozzi_revision: 3e8d33df397d4854bd6860423bed88c546501eb7
+  roi_directory: /path/to/derivatives/reference/tozzi_rois
+  confounds: [trans_x, trans_y, trans_z, rot_x, rot_y, rot_z, white_matter, csf]
+  high_pass_hz: 0.008
+  low_pass_hz: 0.09
+  smoothing_fwhm_mm: 6.0
+
+analysis:
+  candidate_clusters: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+  selected_clusters: 6
+  null_iterations: 10000
+  permutation_iterations: 10000
+  subsample_iterations: 10000
+  subsample_fraction: 0.8
+  imputation_iterations: 1
+  n_jobs: -1
+  full_scale_iterations: 10000
+  minimum_reference_n: 20
+  minimum_clustering_n: 30
+
+report:
+  title: FOR2107 multimodal adaptation of Tozzi et al. (2024)
+  formats: [html, pdf]
+  theme: light
