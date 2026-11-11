@@ -1,0 +1,376 @@
+version: 1
+status: ready_all_networks
+tiers:
+  all_network_edges:
+    include_tasks: [rest]
+    description: Every within-network ROI pair of Tozzi's seven ROI networks.
+
+# All 52 within-network pairs of the 29 published Tozzi ROIs (seven networks
+# by ROI-file prefix). The 14 edges of Tozzi et al. Supplementary Table 18 keep
+# their names and are marked published_edge; the other 38 pairs are
+# within_network_extension. Generated; published edges keep their ROI order.
+features:
+- name: D2D1_default_ampfc_ag_l_connectivity
+  circuit: default_mode
+  source_task: rest
+  modality: connectivity
+  equivalence: published_edge
+  rois: [Defaultmode_amPFC_M, Defaultmode_AG_L]
+  ready: true
+- name: D1D3_default_ampfc_ag_r_connectivity
+  circuit: default_mode
+  source_task: rest
+  modality: connectivity
+  equivalence: published_edge
+  rois: [Defaultmode_amPFC_M, Defaultmode_AG_R]
+  ready: true
+- name: D1D4_default_ampfc_pcc_connectivity
+  circuit: default_mode
+  source_task: rest
+  modality: connectivity
+  equivalence: published_edge
+  rois: [Defaultmode_amPFC_M, Defaultmode_PCC_M]
+  ready: true
+- name: Defaultmode_AG_L__Defaultmode_AG_R_connectivity
+  circuit: default_mode
+  source_task: rest
+  modality: connectivity
+  equivalence: within_network_extension
+  rois: [Defaultmode_AG_L, Defaultmode_AG_R]
+  ready: true
+- name: D2D4_default_ag_l_pcc_connectivity
+  circuit: default_mode
+  source_task: rest
+  modality: connectivity
+  equivalence: published_edge
+  rois: [Defaultmode_AG_L, Defaultmode_PCC_M]
+  ready: true
+- name: D3D4_default_ag_r_pcc_connectivity
+  circuit: default_mode
+  source_task: rest
+  modality: connectivity
+  equivalence: published_edge
+  rois: [Defaultmode_AG_R, Defaultmode_PCC_M]
+  ready: true
+- name: S1S2_salience_ai_l_ai_r_connectivity
+  circuit: salience
+  source_task: rest
+  modality: connectivity
+  equivalence: published_edge
+  rois: [Salience_AI_L, Salience_AI_R]
+  ready: true
+- name: S1S3_salience_ai_l_amy_l_connectivity
+  circuit: salience
+  source_task: rest
+  modality: connectivity
+  equivalence: published_edge
+  rois: [Salience_AI_L, Salience_Amy_L]
+  ready: true
+- name: Salience_AI_L__Salience_Amy_R_connectivity
+  circuit: salience
+  source_task: rest
+  modality: connectivity
+  equivalence: within_network_extension
+  rois: [Salience_AI_L, Salience_Amy_R]
+  ready: true
+- name: Salience_AI_R__Salience_Amy_L_connectivity
+  circuit: salience
+  source_task: rest
+  modality: connectivity
+  equivalence: within_network_extension
+  rois: [Salience_AI_R, Salience_Amy_L]
+  ready: true
+- name: S2S4_salience_ai_r_amy_r_connectivity
+  circuit: salience
+  source_task: rest
+  modality: connectivity
+  equivalence: published_edge
+  rois: [Salience_AI_R, Salience_Amy_R]
+  ready: true
+- name: Salience_Amy_L__Salience_Amy_R_connectivity
+  circuit: salience
+  source_task: rest
+  modality: connectivity
+  equivalence: within_network_extension
+  rois: [Salience_Amy_L, Salience_Amy_R]
+  ready: true
+- name: A2A1_attention_lpfc_l_mspfc_connectivity
+  circuit: attention
+  source_task: rest
+  modality: connectivity
+  equivalence: published_edge
+  rois: [Attention_LPFC_L, Attention_msPFC_M]
+  ready: true
+- name: A3A1_attention_lpfc_r_mspfc_connectivity
+  circuit: attention
+  source_task: rest
+  modality: connectivity
+  equivalence: published_edge
+  rois: [Attention_LPFC_R, Attention_msPFC_M]
+  ready: true
+- name: Attention_msPFC_M__Attention_aIPL_L_connectivity
+  circuit: attention
+  source_task: rest
+  modality: connectivity
+  equivalence: within_network_extension
+  rois: [Attention_msPFC_M, Attention_aIPL_L]
+  ready: true
+- name: Attention_msPFC_M__Attention_aIPL_R_connectivity
+  circuit: attention
+  source_task: rest
+  modality: connectivity
+  equivalence: within_network_extension
+  rois: [Attention_msPFC_M, Attention_aIPL_R]
+  ready: true
+- name: Attention_msPFC_M__Attention_PCUN_L_connectivity
+  circuit: attention
+  source_task: rest
+  modality: connectivity
+  equivalence: within_network_extension
+  rois: [Attention_msPFC_M, Attention_PCUN_L]
+  ready: true
+- name: Attention_msPFC_M__Attention_PCUN_R_connectivity
+  circuit: attention
+  source_task: rest
+  modality: connectivity
+  equivalence: within_network_extension
+  rois: [Attention_msPFC_M, Attention_PCUN_R]
+  ready: true
+- name: Attention_LPFC_L__Attention_LPFC_R_connectivity
+  circuit: attention
+  source_task: rest
+  modality: connectivity
+  equivalence: within_network_extension
+  rois: [Attention_LPFC_L, Attention_LPFC_R]
+  ready: true
+- name: A4A2_attention_aipl_l_lpfc_l_connectivity
+  circuit: attention
+  source_task: rest
+  modality: connectivity
+  equivalence: published_edge
+  rois: [Attention_aIPL_L, Attention_LPFC_L]
+  ready: true
+- name: Attention_LPFC_L__Attention_aIPL_R_connectivity
+  circuit: attention
+  source_task: rest
+  modality: connectivity
+  equivalence: within_network_extension
+  rois: [Attention_LPFC_L, Attention_aIPL_R]
+  ready: true
+- name: Attention_LPFC_L__Attention_PCUN_L_connectivity
+  circuit: attention
+  source_task: rest
+  modality: connectivity
+  equivalence: within_network_extension
+  rois: [Attention_LPFC_L, Attention_PCUN_L]
+  ready: true
+- name: Attention_LPFC_L__Attention_PCUN_R_connectivity
+  circuit: attention
+  source_task: rest
+  modality: connectivity
+  equivalence: within_network_extension
+  rois: [Attention_LPFC_L, Attention_PCUN_R]
+  ready: true
+- name: Attention_LPFC_R__Attention_aIPL_L_connectivity
+  circuit: attention
+  source_task: rest
+  modality: connectivity
+  equivalence: within_network_extension
+  rois: [Attention_LPFC_R, Attention_aIPL_L]
+  ready: true
+- name: A5A3_attention_aipl_r_lpfc_r_connectivity
+  circuit: attention
+  source_task: rest
+  modality: connectivity
+  equivalence: published_edge
+  rois: [Attention_aIPL_R, Attention_LPFC_R]
+  ready: true
+- name: Attention_LPFC_R__Attention_PCUN_L_connectivity
+  circuit: attention
+  source_task: rest
+  modality: connectivity
+  equivalence: within_network_extension
+  rois: [Attention_LPFC_R, Attention_PCUN_L]
+  ready: true
+- name: Attention_LPFC_R__Attention_PCUN_R_connectivity
+  circuit: attention
+  source_task: rest
+  modality: connectivity
+  equivalence: within_network_extension
+  rois: [Attention_LPFC_R, Attention_PCUN_R]
+  ready: true
+- name: Attention_aIPL_L__Attention_aIPL_R_connectivity
+  circuit: attention
+  source_task: rest
+  modality: connectivity
+  equivalence: within_network_extension
+  rois: [Attention_aIPL_L, Attention_aIPL_R]
+  ready: true
+- name: A4A6_attention_aipl_l_pcun_l_connectivity
+  circuit: attention
+  source_task: rest
+  modality: connectivity
+  equivalence: published_edge
+  rois: [Attention_aIPL_L, Attention_PCUN_L]
+  ready: true
+- name: Attention_aIPL_L__Attention_PCUN_R_connectivity
+  circuit: attention
+  source_task: rest
+  modality: connectivity
+  equivalence: within_network_extension
+  rois: [Attention_aIPL_L, Attention_PCUN_R]
+  ready: true
+- name: Attention_aIPL_R__Attention_PCUN_L_connectivity
+  circuit: attention
+  source_task: rest
+  modality: connectivity
+  equivalence: within_network_extension
+  rois: [Attention_aIPL_R, Attention_PCUN_L]
+  ready: true
+- name: A5A7_attention_aipl_r_pcun_r_connectivity
+  circuit: attention
+  source_task: rest
+  modality: connectivity
+  equivalence: published_edge
+  rois: [Attention_aIPL_R, Attention_PCUN_R]
+  ready: true
+- name: Attention_PCUN_L__Attention_PCUN_R_connectivity
+  circuit: attention
+  source_task: rest
+  modality: connectivity
+  equivalence: within_network_extension
+  rois: [Attention_PCUN_L, Attention_PCUN_R]
+  ready: true
+- name: Negativesad_AI_L__Negativesad_AI_R_connectivity
+  circuit: negative_affect_sad
+  source_task: rest
+  modality: connectivity
+  equivalence: within_network_extension
+  rois: [Negativesad_AI_L, Negativesad_AI_R]
+  ready: true
+- name: Negativesad_AI_L__Negativesad_Amy_L_connectivity
+  circuit: negative_affect_sad
+  source_task: rest
+  modality: connectivity
+  equivalence: within_network_extension
+  rois: [Negativesad_AI_L, Negativesad_Amy_L]
+  ready: true
+- name: Negativesad_AI_L__Negativesad_Amy_R_connectivity
+  circuit: negative_affect_sad
+  source_task: rest
+  modality: connectivity
+  equivalence: within_network_extension
+  rois: [Negativesad_AI_L, Negativesad_Amy_R]
+  ready: true
+- name: Negativesad_AI_L__Negativesad_pgACC_M_connectivity
+  circuit: negative_affect_sad
+  source_task: rest
+  modality: connectivity
+  equivalence: within_network_extension
+  rois: [Negativesad_AI_L, Negativesad_pgACC_M]
+  ready: true
+- name: Negativesad_AI_R__Negativesad_Amy_L_connectivity
+  circuit: negative_affect_sad
+  source_task: rest
+  modality: connectivity
+  equivalence: within_network_extension
+  rois: [Negativesad_AI_R, Negativesad_Amy_L]
+  ready: true
+- name: Negativesad_AI_R__Negativesad_Amy_R_connectivity
+  circuit: negative_affect_sad
+  source_task: rest
+  modality: connectivity
+  equivalence: within_network_extension
+  rois: [Negativesad_AI_R, Negativesad_Amy_R]
+  ready: true
+- name: Negativesad_AI_R__Negativesad_pgACC_M_connectivity
+  circuit: negative_affect_sad
+  source_task: rest
+  modality: connectivity
+  equivalence: within_network_extension
+  rois: [Negativesad_AI_R, Negativesad_pgACC_M]
+  ready: true
+- name: Negativesad_Amy_L__Negativesad_Amy_R_connectivity
+  circuit: negative_affect_sad
+  source_task: rest
+  modality: connectivity
+  equivalence: within_network_extension
+  rois: [Negativesad_Amy_L, Negativesad_Amy_R]
+  ready: true
+- name: Negativesad_Amy_L__Negativesad_pgACC_M_connectivity
+  circuit: negative_affect_sad
+  source_task: rest
+  modality: connectivity
+  equivalence: within_network_extension
+  rois: [Negativesad_Amy_L, Negativesad_pgACC_M]
+  ready: true
+- name: Negativesad_Amy_R__Negativesad_pgACC_M_connectivity
+  circuit: negative_affect_sad
+  source_task: rest
+  modality: connectivity
+  equivalence: within_network_extension
+  rois: [Negativesad_Amy_R, Negativesad_pgACC_M]
+  ready: true
+- name: Negativethreat_Amy_L__Negativethreat_Amy_R_connectivity
+  circuit: negative_affect_threat
+  source_task: rest
+  modality: connectivity
+  equivalence: within_network_extension
+  rois: [Negativethreat_Amy_L, Negativethreat_Amy_R]
+  ready: true
+- name: Negativethreat_Amy_L__Negativethreat_dACC_M_connectivity
+  circuit: negative_affect_threat
+  source_task: rest
+  modality: connectivity
+  equivalence: within_network_extension
+  rois: [Negativethreat_Amy_L, Negativethreat_dACC_M]
+  ready: true
+- name: Negativethreat_Amy_R__Negativethreat_dACC_M_connectivity
+  circuit: negative_affect_threat
+  source_task: rest
+  modality: connectivity
+  equivalence: within_network_extension
+  rois: [Negativethreat_Amy_R, Negativethreat_dACC_M]
+  ready: true
+- name: Positive_VS_L__Positive_VS_R_connectivity
+  circuit: positive_affect
+  source_task: rest
+  modality: connectivity
+  equivalence: within_network_extension
+  rois: [Positive_VS_L, Positive_VS_R]
+  ready: true
+- name: Positive_VS_L__Positive_vMPFC_M_connectivity
+  circuit: positive_affect
+  source_task: rest
+  modality: connectivity
+  equivalence: within_network_extension
+  rois: [Positive_VS_L, Positive_vMPFC_M]
+  ready: true
+- name: Positive_VS_R__Positive_vMPFC_M_connectivity
+  circuit: positive_affect
+  source_task: rest
+  modality: connectivity
+  equivalence: within_network_extension
+  rois: [Positive_VS_R, Positive_vMPFC_M]
+  ready: true
+- name: Cognitive_dLPFCGFi_L__Cognitive_dLPFCGFi1_R_connectivity
+  circuit: cognitive_control
+  source_task: rest
+  modality: connectivity
+  equivalence: within_network_extension
+  rois: [Cognitive_dLPFCGFi_L, Cognitive_dLPFCGFi1_R]
+  ready: true
+- name: Cognitive_dLPFCGFi_L__Cognitive_dACC1_M_connectivity
+  circuit: cognitive_control
+  source_task: rest
+  modality: connectivity
+  equivalence: within_network_extension
+  rois: [Cognitive_dLPFCGFi_L, Cognitive_dACC1_M]
+  ready: true
+- name: Cognitive_dLPFCGFi1_R__Cognitive_dACC1_M_connectivity
+  circuit: cognitive_control
+  source_task: rest
+  modality: connectivity
+  equivalence: within_network_extension
+  rois: [Cognitive_dLPFCGFi1_R, Cognitive_dACC1_M]
+  ready: true

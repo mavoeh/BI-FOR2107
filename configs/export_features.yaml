@@ -1,0 +1,56 @@
+project:
+  name: for2107_features
+  root: ..
+  random_seed: 2107
+  mode: feature_export
+# Writes features/ (see features/README.md), the starting point of the
+# stability analysis. Needs the clinical database and the FEAT task outputs;
+# the analyses downstream need neither.
+inputs:
+  task_data_root: ../data/preproc/tasks
+  clinical_files:
+    - ../data/Datenbank_Update_DataFreeze1-4-10012025.sav
+  primary_clinical_file: ../data/Datenbank_Update_DataFreeze1-4-10012025.sav
+outputs:
+  root: ../features
+selection:
+  session: ses-01
+  clinical_diagnoses: [MDD, anxiety]
+  include_all_diagnoses: true
+  healthy_labels: [HC, healthy, control]
+  variable_map: variable_map.yaml
+  subject_id_prefix: sub-
+  subject_id_width: 4
+  exclusion_flags:
+    DO_Klinisch_final: [1]
+    DO_Medikation_fMRT: [1]
+  diagnosis_groups:
+    Kontrolle: HC
+    MDD: MDD
+    Angst und komorbid MDD: MDD_anxiety
+    "Angst (Panikstörung mit oder ohne Agoraphobie, GAS, multiple spezifische Phobien, soziale Phobie)": anxiety
+    BD: BD
+    Schizophrenie: SZ
+    Schizoaffektiv: SZA
+    sonstige Diagnose: other
+preprocessing: {}
+harmonization:
+  # Scanner epoch of each participant (participants.tsv, scanner_epoch).
+  scanner_epochs:
+    Marburg_pre_bodycoil_2016: {Site: 1, Dummy_BC_MR_pre: 1}
+    Marburg_post_bodycoil_2016: {Site: 1, Dummy_BC_MR_post: 1, Dummy_GS_MR_post: 0}
+    Marburg_post_gradientcoil_2018: {Site: 1, Dummy_GS_MR_post: 1}
+    Muenster_pre_prescan_normalize_2016: {Site: 2, PreScanNormalize: 0}
+    Muenster_prescan_normalize: {Site: 2, PreScanNormalize: 1}
+analysis: {}
+feature_export:
+  # Feature tables from run-tozzi (tozzi_for2107_all_networks.yaml) and the
+  # rest-scan run (rest_all_networks.yaml).
+  task:
+    feature_table: ../derivatives/for2107_tozzi_all_networks/features/regional_features.tsv
+    catalog: ../derivatives/for2107_tozzi_all_networks/features/feature_selection.tsv
+  rest:
+    feature_table: ../derivatives/for2107_tozzi_all_networks_rest/features/regional_features.tsv
+  # Frames with framewise displacement above the threshold count as high
+  # motion (task_motion.tsv); the analysis masks a scan above a share of them.
+  motion: {runs: [AP, FM], fd_threshold_mm: 0.3}

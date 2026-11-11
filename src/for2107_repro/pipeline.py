@@ -204,7 +204,10 @@ def run_validation_pipeline(config: Config) -> dict[str, Any]:
     with stage("6/9 Extract participant-level circuit features"):
         extracted = write_available_features(config)
     with stage("7/9 Run clustering and statistical validation"):
-        analysis = run_primary_analysis(config, extracted["features"], cohort["participants"])
+        if config.get("analysis.run_clustering", True):
+            analysis = run_primary_analysis(config, extracted["features"], cohort["participants"])
+        else:
+            analysis = {"ready": False, "reasons": ["clustering-disabled-in-config"]}
     clinical_inputs = [Path(path) for path in config.get("inputs.clinical_files", [])]
     with stage("8/9 Record provenance"):
         provenance = write_provenance(

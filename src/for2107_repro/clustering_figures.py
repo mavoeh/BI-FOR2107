@@ -23,11 +23,64 @@ def _code(name: str) -> str:
 
 
 def _feature_names(assignments: pd.DataFrame) -> list[str]:
+    """Return every numeric imaging feature in the assignment table."""
     return [
         name
         for name in assignments.columns
-        if name not in {"subject_id", "cluster"} and _code(name) in EDGE_SPEC
+        if name not in {"subject_id", "cluster", "n_ap_volumes", "n_fm_volumes"}
+        and pd.api.types.is_numeric_dtype(assignments[name])
     ]
+
+
+def _feature_label(name: str) -> str:
+    return _code(name) if _code(name) in EDGE_SPEC else name.replace("_", "\n")
+
+
+def _feature_color(name: str) -> str:
+    """Stable colors for published edges and adapted FOR2107 features."""
+    code = _code(name)
+    if code in EDGE_SPEC:
+        return GROUP_COLORS[EDGE_SPEC[code][2]]
+    lowered = name.lower()
+    if "ppi" in lowered:
+        return "#c26d3a"
+    if "ap_" in lowered or lowered.startswith("ap"):
+        return "#8064a2"
+    if "fm_" in lowered or lowered.startswith("fm"):
+        return "#3f8f6b"
+    return "#66737a"
+
+
+def _feature_group(name: str) -> str:
+    lowered = name.lower()
+    if "_ppi_" in lowered:
+        return "Task PPI"
+    if lowered.startswith("ap_"):
+        return "Affective-priming activation"
+    if lowered.startswith("fm_"):
+        return "Face-matching activation"
+    return "Published resting-state edges"
+
+
+def _compact_feature_label(name: str) -> str:
+    """Short labels that remain legible when all 31 features are plotted."""
+    if _code(name) in EDGE_SPEC:
+        return _code(name)
+    tokens = name.split("_")
+    task = tokens[0]
+    if "_ppi_" in name:
+        left, right = name.split("__", maxsplit=1)
+        left_tokens = left.split("_")
+        right_tokens = right.split("_")
+        return (
+            f"{task} {left_tokens[-2]}-{left_tokens[-1]}\n↔ {right_tokens[-2]}-{right_tokens[-1]}"
+        )
+    if "activation_adapted" in name:
+        activation_index = tokens.index("activation")
+        node = tokens[activation_index - 2 : activation_index]
+        contrast = tokens[1].replace("vs", "")
+        return f"{task} {contrast}\n{node[0]}-{node[1]}"
+    return name.replace("_", "\n")
 
 
 def _finish(ax: plt.Axes) -> None:
@@ -261,7 +314,7 @@ def split_half_profile_figure(
         squeeze=False,
     )
     x = np.arange(len(features))
-    colors = [GROUP_COLORS[EDGE_SPEC[_code(feature)][2]] for feature in features]
+    colors = [_feature_color(feature) for feature in features]
     rng = np.random.default_rng(seed)
     whole_means = assignments.groupby("cluster")[features].mean()
     first_means = first.groupby("cluster")[features].mean()
@@ -328,20 +381,25 @@ def split_half_profile_figure(
                 ax.set_ylabel(f"Cluster {cluster}\nreference SD")
             if row == confirmatory - 1:
                 ax.set_xticks(
-                    x, [_code(feature) for feature in features], rotation=60, ha="right", fontsize=7
+                    x,
+                    [_feature_label(feature) for feature in features],
+                    rotation=60,
+                    ha="right",
+                    fontsize=6,
                 )
             else:
                 ax.tick_params(axis="x", bottom=False, labelbottom=False)
     legend = [
-        Patch(facecolor=GROUP_COLORS["default"], label="Default mode"),
-        Patch(facecolor=GROUP_COLORS["attention"], label="Attention"),
-        Patch(facecolor=GROUP_COLORS["salience"], label="Salience"),
+        Patch(facecolor=GROUP_COLORS["default"], label="Published resting-state edges"),
+        Patch(facecolor="#8064a2", label="Affective-priming activation"),
+        Patch(facecolor="#3f8f6b", label="Face-matching activation"),
+        Patch(facecolor="#c26d3a", label="Task PPI"),
         Patch(facecolor="#c8cccf", label="Not FDR-significant"),
     ]
     fig.legend(
         handles=legend, loc="lower center", ncol=4, frameon=False, bbox_to_anchor=(0.5, 0.005)
     )
-    fig.suptitle("Split-half reliability of resting-state cluster profiles", fontweight="semibold")
+    fig.suptitle("Split-half reliability of all imaging-feature profiles", fontweight="semibold")
     fig.tight_layout(rect=(0, 0.04, 1, 0.97))
     return fig, tests
 
@@ -363,27 +421,181 @@ def supplementary_clustering_figures(
     return {
         "supplementary_figure_1_elbow": (
             elbow_figure(evaluation, confirmatory),
-            "Rest-only counterpart of Tozzi Supplementary Fig. 1; the confirmatory solution is circled in red.",
+            "All-feature FOR2107 counterpart of Tozzi Supplementary Fig. 1; the confirmatory solution is circled in red.",
             {},
         ),
         "supplementary_figure_2_simulation_silhouette": (
             simulation_silhouette_figure(assignments, evaluation, confirmatory),
-            "Rest-only counterpart of Tozzi Supplementary Fig. 2: observed mean silhouettes, multivariate-normal null p-values, and participant-level silhouettes for the confirmatory solution.",
+            "All-feature FOR2107 counterpart of Tozzi Supplementary Fig. 2: observed mean silhouettes, multivariate-normal null p-values, and participant-level silhouettes for the confirmatory solution.",
             {},
         ),
         "supplementary_figure_3_permutation_silhouette": (
             permutation_silhouette_figure(evaluation, confirmatory),
-            "Rest-only counterpart of Tozzi Supplementary Fig. 3: observed separation and feature-permutation significance.",
+            "All-feature FOR2107 counterpart of Tozzi Supplementary Fig. 3: observed separation and feature-permutation significance.",
             {},
         ),
         "supplementary_figure_4_stability": (
             stability_figure(loo, subsample, confirmatory),
-            "Rest-only counterpart of Tozzi Supplementary Fig. 4. Shaded bands show ±1 SD across perturbations; the confirmatory solution is circled.",
+            "All-feature FOR2107 counterpart of Tozzi Supplementary Fig. 4. Shaded bands show ±1 SD across perturbations; the confirmatory solution is circled.",
+            {},
+        ),
+        "supplementary_figure_5_biotype_profiles": (
+            _biotype_profile_figure(assignments),
+            "All-feature FOR2107 counterpart of Tozzi Supplementary Fig. 5: cluster profiles with 95% confidence intervals; adapted task-derived features are shown alongside published resting-state edges.",
             {},
         ),
         "supplementary_figure_6_split_half_profiles": (
             split_figure,
-            "Rest-only counterpart of Tozzi Supplementary Fig. 6. Bars show means and unadjusted 95% confidence intervals; circuit colors require BH-FDR significance within each panel. Pale bands mark >0.5-SD deviations replicated in direction and magnitude across both halves.",
+            "All-feature FOR2107 counterpart of Tozzi Supplementary Fig. 6. Bars show means and 95% confidence intervals; feature colors identify resting-state edges and task-derived adaptations. Pale bands mark >0.5-SD deviations replicated in direction and magnitude across both halves.",
             {"split_tests": split_tests},
         ),
     }
+
+
+def _biotype_profile_figure(assignments: pd.DataFrame) -> plt.Figure:
+    """Render an all-feature profile figure in the visual grammar of Tozzi Fig. 3."""
+    features = _feature_names(assignments)
+    if not features:
+        raise ValueError("Biotype profile figure requires imaging features")
+    group_order = {
+        "Published resting-state edges": 0,
+        "Affective-priming activation": 1,
+        "Face-matching activation": 2,
+        "Task PPI": 3,
+    }
+    features = sorted(features, key=lambda feature: group_order[_feature_group(feature)])
+    deviations = cluster_deviation_tests(assignments, features)
+    clusters = sorted(assignments["cluster"].dropna().astype(int).unique())
+    x = np.arange(len(features))
+    height = 1.32 * len(clusters) + 2.3
+    fig = plt.figure(figsize=(15.2, height), constrained_layout=False)
+    grid = fig.add_gridspec(
+        len(clusters),
+        2,
+        width_ratios=(1.05, 8.8),
+        hspace=0.08,
+        wspace=0.03,
+        left=0.055,
+        right=0.985,
+        top=0.91,
+        bottom=0.18,
+    )
+    rng = np.random.default_rng(2107)
+    family_colors = {
+        "Published resting-state edges": "#7389c5",
+        "Affective-priming activation": "#8064a2",
+        "Face-matching activation": "#3f8f6b",
+        "Task PPI": "#c26d3a",
+    }
+    for row, cluster in enumerate(clusters):
+        selected = assignments.loc[assignments["cluster"].astype(int) == cluster]
+        stats = deviations.loc[deviations["cluster"].astype(int) == cluster].set_index("feature")
+        profile = stats.reindex(features)
+        label_ax = fig.add_subplot(grid[row, 0])
+        label_ax.text(
+            0.5,
+            0.5,
+            f"Cluster {cluster}\n(n={len(selected)})",
+            ha="center",
+            va="center",
+            fontsize=10,
+            weight="semibold",
+        )
+        label_ax.axis("off")
+        ax = fig.add_subplot(grid[row, 1])
+        for index, feature in enumerate(features):
+            values = pd.to_numeric(selected[feature], errors="coerce").dropna().to_numpy()
+            ax.scatter(
+                np.full(len(values), index) + rng.uniform(-0.22, 0.22, len(values)),
+                values,
+                s=4,
+                color="#8d9498",
+                alpha=0.14,
+                linewidths=0,
+                rasterized=True,
+                zorder=1,
+            )
+        # Keep the circuit-family color for every feature. Statistical
+        # significance is reported in the accompanying statistics table, not
+        # encoded by greying bars: a non-significant estimate is still a
+        # meaningful observed profile value.
+        colors = [_feature_color(feature) for feature in features]
+        ax.bar(
+            x,
+            profile["mean"].to_numpy(float),
+            yerr=profile["ci_95_half_width"].to_numpy(float),
+            color=colors,
+            width=0.72,
+            edgecolor="none",
+            error_kw={"ecolor": "#394147", "elinewidth": 0.65, "capsize": 1.6},
+            zorder=2,
+        )
+        ax.axhline(0, color=INK, linewidth=0.65)
+        ax.axhline(0.5, color=LINE, linewidth=0.5, linestyle="--")
+        ax.axhline(-0.5, color=LINE, linewidth=0.5, linestyle="--")
+        for index, feature in enumerate(features):
+            if index and _feature_group(features[index - 1]) != _feature_group(feature):
+                ax.axvline(index - 0.5, color="#8d969a", linewidth=0.8)
+        ax.set_ylim(-2.2, 2.2)
+        ax.set_xlim(-0.75, len(features) - 0.25)
+        ax.spines[["top", "right"]].set_visible(False)
+        ax.spines["left"].set_color("#899197")
+        ax.spines["bottom"].set_color("#899197")
+        ax.grid(axis="y", color="#e5e8ea", linewidth=0.55)
+        ax.set_axisbelow(True)
+        if row == 0:
+            starts = []
+            last = None
+            for index, feature in enumerate(features + ["__end__"]):
+                group = _feature_group(feature) if feature != "__end__" else None
+                if group != last:
+                    if last is not None:
+                        starts[-1][2] = index
+                    if group is not None:
+                        starts.append([group, index, len(features)])
+                    last = group
+            for group, start, end in starts:
+                center = (start + end - 1) / 2
+                ax.text(
+                    center,
+                    1.04,
+                    group,
+                    transform=ax.get_xaxis_transform(),
+                    ha="center",
+                    va="bottom",
+                    fontsize=8,
+                    color=family_colors[group],
+                    weight="semibold",
+                )
+        if row == len(clusters) - 1:
+            ax.set_xticks(
+                x,
+                [_compact_feature_label(feature) for feature in features],
+                rotation=45,
+                ha="right",
+                fontsize=7,
+            )
+            ax.set_xlabel(
+                "Features (colors identify the circuit family; error bars are 95% CIs)",
+                labelpad=12,
+            )
+        else:
+            ax.tick_params(axis="x", bottom=False, labelbottom=False)
+        ax.set_ylabel("Reference SD", fontsize=8)
+    legend = [Patch(facecolor=color, label=group) for group, color in family_colors.items()]
+    fig.legend(
+        handles=legend,
+        loc="upper center",
+        ncol=5,
+        frameon=False,
+        bbox_to_anchor=(0.56, 0.965),
+        fontsize=9,
+    )
+    fig.suptitle(
+        "Cluster profiles across all imaging features",
+        x=0.53,
+        y=0.995,
+        fontsize=14,
+        weight="semibold",
+    )
+    return fig

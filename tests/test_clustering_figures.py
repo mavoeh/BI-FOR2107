@@ -49,5 +49,6 @@ def test_supplementary_clustering_figure_set_is_complete() -> None:
         "supplementary_figure_2_simulation_silhouette",
         "supplementary_figure_3_permutation_silhouette",
         "supplementary_figure_4_stability",
+        "supplementary_figure_5_biotype_profiles",
         "supplementary_figure_6_split_half_profiles",
     }

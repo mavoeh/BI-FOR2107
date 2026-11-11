@@ -1,0 +1,120 @@
+project:
+  name: for2107_tozzi_all_networks
+  root: ..
+  random_seed: 2107
+  mode: independent_tozzi_all_networks
+inputs:
+  task_data_root: ../data/preproc/tasks
+  clinical_files:
+    - ../data/Datenbank_Update_DataFreeze1-4-10012025.sav
+    - ../data/Datenbank_DataFreeze3-4_Follow-Up_10012025.sav
+  primary_clinical_file: ../data/Datenbank_Update_DataFreeze1-4-10012025.sav
+outputs:
+  root: ../derivatives/for2107_tozzi_all_networks
+  reports: ../reports/tozzi_all_networks
+  work: ../work/tozzi_all_networks
+selection:
+  session: ses-01
+  clinical_diagnoses: [MDD, anxiety]
+  include_all_diagnoses: true
+  healthy_labels: [HC, healthy, control]
+  variable_map: variable_map.yaml
+  subject_id_prefix: sub-
+  subject_id_width: 4
+preprocessing:
+  missing_motion_policy: include_unassessed
+features:
+  # All 52 within-network pairs of Tozzi's seven ROI networks (29 ROIs).
+  tier: all_network_edges
+  mapping: feature_map_all_networks.yaml
+  roi_directory: ../derivatives/reference/tozzi_rois
+tozzi:
+  rest_band_hz: [0.009, 0.08]
+  extraction_jobs: 20
+  signal_scaling: percent_signal_change
+  tissue_probability_threshold: 0.9
+  # Every feature Tozzi's networks allow with the FOR2107 tasks:
+  #   task-free connectivity of all within-network pairs, from AP+FM residuals
+  #     and from each run alone (run_connectivity);
+  #   activation of all 29 ROIs (no `rois` list) in every contrast;
+  #   PPI of all within-network pairs in every contrast, both directions.
+  # The contrasts follow Tozzi's emotion > neutral design; FOR2107 has no
+  # Go/NoGo or threat prime, and no sgACC mask for nonconscious threat.
+  task_contrasts:
+    AP:
+      sad_vs_neutral:
+        positive: sad
+        negative: neutral
+        ppi_edges: &within_network_pairs
+          - [Defaultmode_amPFC_M, Defaultmode_AG_L]
+          - [Defaultmode_amPFC_M, Defaultmode_AG_R]
+          - [Defaultmode_amPFC_M, Defaultmode_PCC_M]
+          - [Defaultmode_AG_L, Defaultmode_AG_R]
+          - [Defaultmode_AG_L, Defaultmode_PCC_M]
+          - [Defaultmode_AG_R, Defaultmode_PCC_M]
+          - [Salience_AI_L, Salience_AI_R]
+          - [Salience_AI_L, Salience_Amy_L]
+          - [Salience_AI_L, Salience_Amy_R]
+          - [Salience_AI_R, Salience_Amy_L]
+          - [Salience_AI_R, Salience_Amy_R]
+          - [Salience_Amy_L, Salience_Amy_R]
+          - [Attention_LPFC_L, Attention_msPFC_M]
+          - [Attention_LPFC_R, Attention_msPFC_M]
+          - [Attention_msPFC_M, Attention_aIPL_L]
+          - [Attention_msPFC_M, Attention_aIPL_R]
+          - [Attention_msPFC_M, Attention_PCUN_L]
+          - [Attention_msPFC_M, Attention_PCUN_R]
+          - [Attention_LPFC_L, Attention_LPFC_R]
+          - [Attention_aIPL_L, Attention_LPFC_L]
+          - [Attention_LPFC_L, Attention_aIPL_R]
+          - [Attention_LPFC_L, Attention_PCUN_L]
+          - [Attention_LPFC_L, Attention_PCUN_R]
+          - [Attention_LPFC_R, Attention_aIPL_L]
+          - [Attention_aIPL_R, Attention_LPFC_R]
+          - [Attention_LPFC_R, Attention_PCUN_L]
+          - [Attention_LPFC_R, Attention_PCUN_R]
+          - [Attention_aIPL_L, Attention_aIPL_R]
+          - [Attention_aIPL_L, Attention_PCUN_L]
+          - [Attention_aIPL_L, Attention_PCUN_R]
+          - [Attention_aIPL_R, Attention_PCUN_L]
+          - [Attention_aIPL_R, Attention_PCUN_R]
+          - [Attention_PCUN_L, Attention_PCUN_R]
+          - [Negativesad_AI_L, Negativesad_AI_R]
+          - [Negativesad_AI_L, Negativesad_Amy_L]
+          - [Negativesad_AI_L, Negativesad_Amy_R]
+          - [Negativesad_AI_L, Negativesad_pgACC_M]
+          - [Negativesad_AI_R, Negativesad_Amy_L]
+          - [Negativesad_AI_R, Negativesad_Amy_R]
+          - [Negativesad_AI_R, Negativesad_pgACC_M]
+          - [Negativesad_Amy_L, Negativesad_Amy_R]
+          - [Negativesad_Amy_L, Negativesad_pgACC_M]
+          - [Negativesad_Amy_R, Negativesad_pgACC_M]
+          - [Negativethreat_Amy_L, Negativethreat_Amy_R]
+          - [Negativethreat_Amy_L, Negativethreat_dACC_M]
+          - [Negativethreat_Amy_R, Negativethreat_dACC_M]
+          - [Positive_VS_L, Positive_VS_R]
+          - [Positive_VS_L, Positive_vMPFC_M]
+          - [Positive_VS_R, Positive_vMPFC_M]
+          - [Cognitive_dLPFCGFi_L, Cognitive_dLPFCGFi1_R]
+          - [Cognitive_dLPFCGFi_L, Cognitive_dACC1_M]
+          - [Cognitive_dLPFCGFi1_R, Cognitive_dACC1_M]
+      happy_vs_neutral:
+        positive: happy
+        negative: neutral
+        ppi_edges: *within_network_pairs
+    FM:
+      faces_vs_shapes:
+        positive: MatchFaces
+        negative: MatchShapes
+        ppi_edges: *within_network_pairs
+  # The Tozzi circuit each contrast stands in for, per ROI network (catalog
+  # only): FM shows fearful/angry faces; AP primes sad and happy faces.
+  construct_matches:
+    AP_sad_vs_neutral: {Negativesad: NS}
+    AP_happy_vs_neutral: {Positive: P}
+    FM_faces_vs_shapes: {Negativethreat: NTC}
+  ppi_directions: separate
+  run_connectivity: true
+analysis:
+  # Feature extraction only.
+  run_clustering: false

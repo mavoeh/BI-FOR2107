@@ -27,6 +27,19 @@ def _parser() -> argparse.ArgumentParser:
         "run",
         "analyze",
         "report",
+        "run-tozzi",
+        "analyze-tozzi",
+        "normative",
+        "export-features",
+        "replicate-tozzi",
+        "replicate-tozzi-clinical",
+        "stability",
+        "stability-figures",
+        "planted-robustness",
+        "tozzi-checks",
+        "reconstruct-tozzi",
+        "heavy-tails-tozzi",
+        "calibrate-tozzi",
     ):
         child = subparsers.add_parser(name)
         child.add_argument("--config", required=True)
@@ -75,6 +88,58 @@ def main(argv: list[str] | None = None) -> int:
             from .pipeline import rerender_report
 
             result = rerender_report(config)
+        elif args.command == "run-tozzi":
+            from .tozzi_pipeline import run_tozzi_pipeline
+
+            result = run_tozzi_pipeline(config)
+        elif args.command == "analyze-tozzi":
+            from .tozzi_pipeline import analyze_tozzi_features
+
+            result = analyze_tozzi_features(config)
+        elif args.command == "normative":
+            from .normative import run_normative_pipeline
+
+            result = run_normative_pipeline(config)
+        elif args.command == "replicate-tozzi":
+            from .replication import run_replication
+
+            result = run_replication(config)
+        elif args.command == "replicate-tozzi-clinical":
+            from .replication import recompute_clinical
+
+            result = recompute_clinical(config)
+        elif args.command == "export-features":
+            from .feature_export import export_features
+
+            result = export_features(config)
+        elif args.command == "stability":
+            from .stability import run_stability
+
+            result = run_stability(config)
+        elif args.command == "planted-robustness":
+            from .stability import run_planted_robustness
+
+            result = run_planted_robustness(config)
+        elif args.command == "tozzi-checks":
+            from .stability import run_tozzi_checks
+
+            result = run_tozzi_checks(config)
+        elif args.command == "stability-figures":
+            from .stability_figures import write_stability_figures
+
+            result = write_stability_figures(config.require_path("outputs.root"))
+        elif args.command == "reconstruct-tozzi":
+            from .reconstruction import run_reconstruction
+
+            result = run_reconstruction(config)
+        elif args.command == "heavy-tails-tozzi":
+            from .heavy_tails import run_heavy_tails
+
+            result = run_heavy_tails(config)
+        elif args.command == "calibrate-tozzi":
+            from .tozzi_calibration import run_calibration
+
+            result = run_calibration(config)
         else:
             raise AssertionError(args.command)
     except (ConfigError, FileNotFoundError, ValueError) as exc:

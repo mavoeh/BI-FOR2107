@@ -43,6 +43,8 @@ NON_FEATURE_COLUMNS = {
     "hama_total",
     "hamd17_total",
     "hamd21_total",
+    "n_ap_volumes",
+    "n_fm_volumes",
 }
 
 
