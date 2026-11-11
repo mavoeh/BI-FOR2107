@@ -1,0 +1,123 @@
+project:
+  name: for2107_tozzi_stability
+  root: ..
+  random_seed: 2107
+  mode: split_half_stability
+inputs: {}
+outputs:
+  root: ../derivatives/for2107_tozzi_stability
+selection: {}
+preprocessing: {}
+analysis:
+  n_jobs: 24
+stability:
+  # Participants, head motion and the task and rest-scan feature tables, as
+  # exported by export-features (features/README.md).
+  feature_dir: ../features
+  # Scoring as in the replication: per-scan motion masking, random-forest
+  # imputation within scanner, ComBat on site, z-scores to controls, PPI
+  # directions averaged after standardization. Each block is scored alone.
+  batch: site
+  clinical_groups: [MDD, MDD_anxiety, anxiety]
+  # A scan is masked when more than this share of its frames moved more than
+  # the export threshold (FD > 0.3 mm, features/task_motion.tsv).
+  motion: {max_fraction: 0.25}
+  k: 6
+  splits: 100
+  # null and planted draws per cross-set and Tozzi-profile comparison
+  reference_draws: 100
+  # a matched cluster counts as replicated at cosine >= 0.8 when both
+  # clusters have at least 10 members
+  replicated_cosine: 0.8
+  min_cluster_size: 10
+  random_sets:
+    pools: [tozzi_matched, all]
+    leave_out_fractions: [0.1, 0.25, 0.5, 0.75]
+    draws: 10
+  # Cross-set pairs on the same patients (disjoint pairs give ARI only).
+  cross_set_pairs:
+    - [tozzi_matched, all]
+    - [tozzi_matched, extensions]
+    - [tozzi_task_free, task_free_all]
+    - [task_free_all, without_connectivity]
+    - [without_activation, without_PPI]
+    - [without_AP_sad_vs_neutral, without_FM_MatchFaces_vs_MatchShapes]
+  random_cross_pairs: 50
+  # Tozzi's own checks on his features, for FOR2107 and both references:
+  # split-half profile r (Supplementary Figure 6) on random splits, and his
+  # permutation test of the silhouette on datasets of his size (n = 801).
+  # Also run alone on a finished run with the tozzi-checks command.
+  tozzi_checks:
+    feature_set: tozzi_matched
+    splits: 100
+    permutation_datasets: 100
+    permutations: 100
+    n: 801
+    published_split_half_r: [0.95, 0.97, 0.93, 0.96, 0.79, 0.86]
+  # The same edges measured independently.
+  independent_pairs:
+    - [edges_ap, edges_fm]
+    - [edges_apfm, edges_rest]
+    - [edges_ap, edges_rest]
+    - [edges_fm, edges_rest]
+  planted:
+    # feature: each of Tozzi's features gets its own biotype mean, measured
+    # from Supplementary Figure 5 (scripts/digitize_tozzi_suppfig5.py);
+    # circuit: one mean per circuit from Fig. 3 (biotype_means below).
+    level: feature
+    feature_means: tozzi_biotype_feature_means.tsv
+    # FOR2107 feature -> Tozzi feature code (Supplementary Table 18). Per-run
+    # and rest-scan versions of an edge (__AP, __FM, __REST) share its code.
+    feature_codes:
+      D2D1_default_ampfc_ag_l_connectivity: D2D1
+      D1D3_default_ampfc_ag_r_connectivity: D1D3
+      D1D4_default_ampfc_pcc_connectivity: D1D4
+      D2D4_default_ag_l_pcc_connectivity: D2D4
+      D3D4_default_ag_r_pcc_connectivity: D3D4
+      S1S3_salience_ai_l_amy_l_connectivity: S1S3
+      S2S4_salience_ai_r_amy_r_connectivity: S2S4
+      S1S2_salience_ai_l_ai_r_connectivity: S1S2
+      A2A1_attention_lpfc_l_mspfc_connectivity: A2A1
+      A3A1_attention_lpfc_r_mspfc_connectivity: A3A1
+      A4A2_attention_aipl_l_lpfc_l_connectivity: A4A2
+      A5A3_attention_aipl_r_lpfc_r_connectivity: A5A3
+      A4A6_attention_aipl_l_pcun_l_connectivity: A4A6
+      A5A7_attention_aipl_r_pcun_r_connectivity: A5A7
+      AP_sad_vs_neutral_Negativesad_pgACC_M_activation_adapted: NS1
+      AP_sad_vs_neutral_Negativesad_AI_L_activation_adapted: NS2
+      AP_sad_vs_neutral_Negativesad_AI_R_activation_adapted: NS3
+      AP_sad_vs_neutral_Negativesad_Amy_L_activation_adapted: NS4
+      AP_sad_vs_neutral_Negativesad_Amy_R_activation_adapted: NS5
+      AP_sad_vs_neutral_Negativesad_AI_L__Negativesad_pgACC_M_ppi_adapted: NS2NS1
+      AP_sad_vs_neutral_Negativesad_AI_R__Negativesad_pgACC_M_ppi_adapted: NS3NS1
+      AP_sad_vs_neutral_Negativesad_Amy_L__Negativesad_pgACC_M_ppi_adapted: NS4NS1
+      AP_sad_vs_neutral_Negativesad_Amy_R__Negativesad_pgACC_M_ppi_adapted: NS5NS1
+      FM_faces_vs_shapes_Negativethreat_dACC_M_activation_adapted: NT1
+      FM_faces_vs_shapes_Negativethreat_Amy_L_activation_adapted: NT2
+      FM_faces_vs_shapes_Negativethreat_Amy_R_activation_adapted: NT3
+      FM_faces_vs_shapes_Negativethreat_Amy_L__Negativethreat_dACC_M_ppi_adapted: NT2NT1
+      FM_faces_vs_shapes_Negativethreat_Amy_R__Negativethreat_dACC_M_ppi_adapted: NT3NT1
+      AP_happy_vs_neutral_Positive_vMPFC_M_activation_adapted: P1
+      AP_happy_vs_neutral_Positive_VS_L_activation_adapted: P2
+      AP_happy_vs_neutral_Positive_VS_R_activation_adapted: P3
+    # The planted effect is scaled so that Tozzi's own design (all 41
+    # features, n = 801, k = 6) reproduces his multinormal-null p = .016.
+    # Feature level: calibrated in this run; circuit level: fixed scale from
+    # for2107_tozzi_replication/power/scenarios.tsv.
+    calibration:
+      n: 801
+      k: 6
+      p_multinormal: 0.016
+      scales: [0.4, 0.55, 0.7, 0.85, 1.0, 1.2, 1.4]
+      replicates: 60
+      null_draws: 500
+    scale: 1.112
+    # Circuit-level biotype means digitized from Tozzi et al. (2024) Fig. 3.
+    biotype_means:
+      DC+SC+AC+: {D_C: 0.85, S_C: 0.73, A_C: 0.55, NS_A: -0.32, NS_C: -0.02, NTC_A: -0.40, NTC_C: -0.05, NTN_A: -0.05, NTN_C: -0.05, P_A: -0.29, C_A: -0.27, C_C: -0.15}
+      AC-: {D_C: 0.15, S_C: -0.26, A_C: -0.80, NS_A: -0.05, NS_C: 0.02, NTC_A: -0.08, NTC_C: 0.18, NTN_A: 0.03, NTN_C: -0.03, P_A: -0.03, C_A: -0.33, C_C: 0.40}
+      NSA+PA+: {D_C: -0.26, S_C: 0.05, A_C: 0.03, NS_A: 0.66, NS_C: -0.28, NTC_A: 0.47, NTC_C: -0.20, NTN_A: -0.08, NTN_C: -0.13, P_A: 0.82, C_A: 0.00, C_C: -0.30}
+      CA+: {D_C: -0.44, S_C: -0.43, A_C: -0.37, NS_A: -0.22, NS_C: 0.12, NTC_A: -0.25, NTC_C: 0.17, NTN_A: 0.30, NTN_C: -0.08, P_A: -0.12, C_A: 0.62, C_C: -0.02}
+      NTCC-CA-: {D_C: 0.12, S_C: -0.30, A_C: -0.22, NS_A: 0.10, NS_C: -0.05, NTC_A: 0.10, NTC_C: -0.88, NTN_A: 0.25, NTN_C: 0.05, P_A: -0.20, C_A: -0.62, C_C: 0.00}
+      DxSxAxNxPxCx: {D_C: -0.38, S_C: 0.40, A_C: 0.42, NS_A: 0.08, NS_C: 0.42, NTC_A: -0.18, NTC_C: 0.10, NTN_A: 0.35, NTN_C: -0.25, P_A: -0.10, C_A: -0.32, C_C: -0.22}
+    biotype_sizes: {DC+SC+AC+: 169, AC-: 161, NSA+PA+: 154, CA+: 258, NTCC-CA-: 15, DxSxAxNxPxCx: 44}

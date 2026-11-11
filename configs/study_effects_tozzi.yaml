@@ -1,0 +1,76 @@
+project:
+  name: for2107_tozzi_study_effects
+  root: ..
+  random_seed: 2107
+  mode: heavy_tail_hypothesis
+inputs: {}
+outputs:
+  root: ../derivatives/for2107_tozzi_study_effects
+selection: {}
+preprocessing: {}
+analysis:
+  n_jobs: 24
+heavy_tails:
+  # Correlations of Tozzi's 41 features, as in the reconstruction: FOR2107
+  # patients within the task-free and task blocks, his between them.
+  stability_config: stability_tozzi.yaml
+  correlations: tozzi_taskfree_task_correlations.tsv
+  for2107_scores: ../derivatives/for2107_tozzi_replication/construct_matched/circuit_scores.tsv
+  # Correlations calibrated so that a structureless sample reproduces his
+  # silhouette curve under his own null (calibrate-tozzi, gamma ~ 2.8).
+  correlation_file: ../derivatives/for2107_tozzi_calibration/calibrated_correlation.tsv
+  # Patients carry his pooled mean profile (size-weighted biotype means).
+  patient_mean: tozzi
+  # His design (Supplementary Table 1): patients from four studies, controls
+  # from two of them.
+  design:
+    patients: {RAD: 309, HCP-DES: 208, iSPOT-D: 198, ENGAGE: 86}
+    controls: {HCP-DES: 70, iSPOT-D: 67}
+  # Controls are normal. Patients: same correlations, heavier tails.
+  # whole_profile_t scales a person's whole profile (multivariate t; cannot
+  # change correlation distances); feature_t gives each feature t-distributed
+  # values (Gaussian copula); outliers adds N(0, sd^2) to single values at the
+  # given rate; study_factor adds study-specific covariance to everyone in a
+  # study (survives ComBat's per-feature correction).
+  # Study-specific covariance (surviving ComBat) at several strengths,
+  # against no subgroups and his biotypes.
+  scenarios:
+    continuum: {}
+    study_factor_0.5: {study_factor: 0.5}
+    study_factor_0.75: {study_factor: 0.75}
+    study_factor_1: {study_factor: 1.0}
+    biotypes_1.0: {biotypes: 1.0}
+    biotypes_1.0_study_0.75: {biotypes: 1.0, study_factor: 0.75}
+  replicates: 12
+  battery:
+    k: 6
+    k_range: [2, 15]
+    simulations: 200
+    permutations: 100
+    leave_one_out: 60
+    subsample: 40
+    split_half: 10
+  # His published properties (main text; Supplementary Figures 2-6, Fig. 3):
+  # p < .05 against the multinormal null for k >= 5 and at k = 6 (.016);
+  # permutation p < .05; leave-one-out ARI > .75 and 20%-out ARI > .28 for
+  # all k; silhouette .065 at k = 6; four large and two small biotypes
+  # (258, 169, 161, 154, 44, 15); split-half profile r about .91; mean
+  # absolute profile value about 0.29 SD.
+  tozzi_like:
+    k: 6
+    significant_from_k: 5
+    loo_above: 0.75
+    subsample_above: 0.28
+    silhouette_k6_range: [0.045, 0.085]
+    largest_four_share: 0.12
+    smallest_two_share: 0.10
+    split_half_above: 0.85
+    profile_abs_range: [0.2, 0.4]
+    # share of patients with a negative silhouette (Supp. Fig. 2c): 28.5%
+    share_negative: 0.285
+    share_negative_tolerance: 0.07
+  # His patients' values beyond 3 and 4 SD (dots of Supplementary Figure 5,
+  # scripts/digitize_tozzi_suppfig5.py --tails): 0.46% and 0.067%.
+  tozzi_published:
+    share_beyond_3sd: 0.0046
+    share_beyond_4sd: 0.00067

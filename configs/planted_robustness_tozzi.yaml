@@ -1,0 +1,25 @@
+project:
+  name: for2107_tozzi_planted_robustness
+  root: ..
+  random_seed: 2107
+  mode: planted_strength_robustness
+inputs: {}
+outputs:
+  root: ../derivatives/for2107_tozzi_planted_robustness
+selection: {}
+preprocessing: {}
+analysis:
+  n_jobs: 24
+# Does the planted strength of the stability analysis depend on the assumed
+# correlations of Tozzi's features? Same calibration (his design reproduces
+# p = .016) with FOR2107 control correlations and with the correlations
+# fitted to his null silhouette curve (as noise, and as the patients' total).
+planted_robustness:
+  stability_config: stability_tozzi.yaml
+  # Copy of derivatives/for2107_tozzi_calibration/calibrated_correlation.tsv
+  # (calibrate-tozzi, which needs the replication run), kept with the code so
+  # that this check runs from features/ alone.
+  correlation_file: tozzi_calibrated_correlation.tsv
+  scales: [0.6, 0.8, 0.9, 1.0, 1.1, 1.2, 1.35, 1.5, 1.75, 2.0, 2.5]
+  replicates: 100
+  null_draws: 500

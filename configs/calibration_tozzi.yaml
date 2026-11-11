@@ -1,0 +1,24 @@
+project:
+  name: for2107_tozzi_calibration
+  root: ..
+  random_seed: 2107
+  mode: tozzi_null_calibration
+inputs: {}
+outputs:
+  root: ../derivatives/for2107_tozzi_calibration
+selection: {}
+preprocessing: {}
+analysis:
+  n_jobs: 24
+calibration:
+  # Starting structure as in the reconstruction: FOR2107 patients within the
+  # task-free and task blocks, Tozzi's published correlations between them.
+  stability_config: stability_tozzi.yaml
+  correlations: tozzi_taskfree_task_correlations.tsv
+  for2107_scores: ../derivatives/for2107_tozzi_replication/construct_matched/circuit_scores.tsv
+  # His mean silhouette and multinormal-null p for k = 2-15 (Supplementary
+  # Figure 2a/b; scripts/digitize_tozzi_clustering_figures.py).
+  curves: tozzi_published_curves.tsv
+  n: 801
+  draws: 120
+  gammas: [1.0, 2.0, 2.5, 3.0, 3.5, 4.0]

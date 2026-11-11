@@ -1,0 +1,85 @@
+project:
+  name: for2107_normative
+  root: ..
+  random_seed: 2107
+  mode: normative_deviation
+inputs:
+  # Percent-signal-change task features from configs/tozzi_for2107_psc.yaml.
+  feature_table: ../derivatives/for2107_tozzi_psc/features/regional_features.tsv
+  # FEAT runs whose MCFLIRT parameters provide framewise displacement.
+  task_data_root: ../data/preproc/tasks
+  clinical_files:
+    - ../data/Datenbank_Update_DataFreeze1-4-10012025.sav
+  primary_clinical_file: ../data/Datenbank_Update_DataFreeze1-4-10012025.sav
+outputs:
+  root: ../derivatives/for2107_normative
+selection:
+  session: ses-01
+  clinical_diagnoses: [MDD, anxiety]
+  include_all_diagnoses: true
+  healthy_labels: [HC, healthy, control]
+  variable_map: variable_map.yaml
+  subject_id_prefix: sub-
+  subject_id_width: 4
+  # FOR2107 standard drop-outs, as numeric SPSS codes.
+  exclusion_flags:
+    DO_Klinisch_final: [1]
+    DO_Medikation_fMRT: [1]
+  # Database diagnosis label -> analysis group.
+  diagnosis_groups:
+    Kontrolle: HC
+    MDD: MDD
+    Angst und komorbid MDD: MDD_anxiety
+    "Angst (Panikstörung mit oder ohne Agoraphobie, GAS, multiple spezifische Phobien, soziale Phobie)": anxiety
+    BD: BD
+    Schizophrenie: SZ
+    Schizoaffektiv: SZA
+    sonstige Diagnose: other
+preprocessing: {}
+motion:
+  # Power framewise displacement from both task runs the features come from.
+  tasks: [AP, FM]
+  fd_threshold_mm: 0.5
+  # Exclude if either run exceeds either limit.
+  exclude: true
+  max_mean_fd_mm: 0.5
+  max_high_motion_pct: 20
+harmonization:
+  # ComBat batches = site x hardware/sequence period, from the database
+  # dummies (numeric SPSS codes; Site 1 = Marburg, 2 = Münster).
+  scanner_epochs:
+    Marburg_pre_bodycoil_2016: {Site: 1, Dummy_BC_MR_pre: 1}
+    Marburg_post_bodycoil_2016: {Site: 1, Dummy_BC_MR_post: 1, Dummy_GS_MR_post: 0}
+    Marburg_post_gradientcoil_2018: {Site: 1, Dummy_GS_MR_post: 1}
+    Muenster_pre_prescan_normalize_2016: {Site: 2, PreScanNormalize: 0}
+    Muenster_prescan_normalize: {Site: 2, PreScanNormalize: 1}
+normative:
+  age_knots: 4
+  variance_iterations: 3
+  cv_folds: 10
+  extreme_threshold: 2.6
+  # The Marburg post-gradient-coil epoch keeps 19 controls after motion
+  # exclusion; empirical-Bayes ComBat pools location/scale across features.
+  min_batch_reference_n: 15
+  female_code: 2
+  # Linear terms besides sex, in the mean and log-variance models and
+  # protected in ComBat.
+  linear_covariates: [log_mean_fd]
+  comparison_groups:
+    MDD_spectrum: [MDD, MDD_anxiety, anxiety]
+    BD: [BD]
+    psychosis: [SZ, SZA]
+  association_group: MDD_spectrum
+  clinical_measures:
+    hamd17: HAMD_Sum17
+    bdi: BDI_Sum
+    hama: HAMA_Sum
+    shaps: SHAPS_Sum
+    ctq: CTQ_Sum
+    neuroticism: NEOFFI_Neurotizismus
+    stai_trait: STAIT_Sum
+    depressive_episodes: DepEp
+    hospitalizations: Hosp
+    age_of_onset: AgeOfOnset
+    gaf: GAFscore
+analysis: {}

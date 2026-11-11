@@ -1,0 +1,141 @@
+project:
+  name: for2107_tozzi_replication
+  root: ..
+  random_seed: 2107
+  mode: tozzi_faithful_replication
+inputs:
+  task_data_root: ../data/preproc/tasks
+  clinical_files:
+    - ../data/Datenbank_Update_DataFreeze1-4-10012025.sav
+  primary_clinical_file: ../data/Datenbank_Update_DataFreeze1-4-10012025.sav
+outputs:
+  root: ../derivatives/for2107_tozzi_replication
+selection:
+  session: ses-01
+  clinical_diagnoses: [MDD, anxiety]
+  include_all_diagnoses: true
+  healthy_labels: [HC, healthy, control]
+  variable_map: variable_map.yaml
+  subject_id_prefix: sub-
+  subject_id_width: 4
+  exclusion_flags:
+    DO_Klinisch_final: [1]
+    DO_Medikation_fMRT: [1]
+  diagnosis_groups:
+    Kontrolle: HC
+    MDD: MDD
+    Angst und komorbid MDD: MDD_anxiety
+    "Angst (Panikstörung mit oder ohne Agoraphobie, GAS, multiple spezifische Phobien, soziale Phobie)": anxiety
+    BD: BD
+    Schizophrenie: SZ
+    Schizoaffektiv: SZA
+    sonstige Diagnose: other
+preprocessing: {}
+harmonization:
+  # Needed by the cohort reader; replication.batch decides the ComBat batch.
+  scanner_epochs:
+    Marburg_pre_bodycoil_2016: {Site: 1, Dummy_BC_MR_pre: 1}
+    Marburg_post_bodycoil_2016: {Site: 1, Dummy_BC_MR_post: 1, Dummy_GS_MR_post: 0}
+    Marburg_post_gradientcoil_2018: {Site: 1, Dummy_GS_MR_post: 1}
+    Muenster_pre_prescan_normalize_2016: {Site: 2, PreScanNormalize: 0}
+    Muenster_prescan_normalize: {Site: 2, PreScanNormalize: 1}
+analysis:
+  n_jobs: 24
+replication:
+  # Tozzi (leotozzi88/cluster_study_2023, analysis_main): ComBat on scanner
+  # without covariates; FOR2107 has one scanner per site.
+  batch: site
+  clinical_groups: [MDD, MDD_anxiety, anxiety]
+  motion:
+    # 01_merge_data_qc.R drops a scan's features when >25% of its frames have
+    # FD > 0.3 mm (variable fd03); missing values are then imputed.
+    runs: [AP, FM]
+    fd_threshold_mm: 0.3
+    max_fraction: 0.25
+  iterations: {simulations: 10000, permutations: 10000, subsample: 10000}
+  clinical_k: [2, 6]
+  # Tozzi domain -> closest FOR2107 measure (Tozzi instrument in comments).
+  # Not available in FOR2107: ruminative worry (PSWQ), ruminative brooding
+  # (RRS), cognitive dyscontrol (BIS), Go/NoGo and emotion-RT tests.
+  clinical_measures:
+    anhedonia: SHAPS_Sum                          # SHAPS (same instrument)
+    negative_bias: BDI_Sum                        # DASS depression
+    tension: PSS_Sum                              # DASS stress
+    threat_dysregulation: SCL90R_Sum_Aengstlichkeit  # DASS anxiety
+    anxious_arousal: HAMA_Sum                     # MASQ anxious arousal
+    suicidality: HAMD11                           # QIDS item 12
+    working_memory: BZT_Sum                       # WebNeuro working memory
+    sustained_attention: D2_KL                    # WebNeuro sustained attention
+    executive_function: TMT_Differenz             # WebNeuro maze
+  analyses:
+    # Tozzi's task-free features are task-GLM residuals (AP + FM here).
+    rest_task_residual:
+      feature_table: ../derivatives/for2107_tozzi_construct/features/regional_features.tsv
+      groups: {task_free: "_connectivity$"}
+      motion_runs: {task_free: [AP, FM]}
+      candidate_clusters: [2, 6]
+      reference: rest_only
+    # Dedicated resting-state scan; no realignment parameters are staged.
+    rest_scan:
+      feature_table: ../derivatives/for2107_tozzi_external_rs_phase1/features/regional_features.tsv
+      groups: {task_free: "_connectivity$"}
+      motion_runs: {}
+      candidate_clusters: [2, 6]
+      reference: rest_only
+    # 31 of Tozzi's 41 features, construct-matched (no NTN, no Go/NoGo).
+    construct_matched:
+      feature_table: ../derivatives/for2107_tozzi_construct/features/regional_features.tsv
+      groups: {task_free: "_connectivity$", AP: "^AP_", FM: "^FM_"}
+      motion_runs: {task_free: [AP, FM], AP: [AP], FM: [FM]}
+      candidate_clusters: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+      reference: all_features
+    # Single-run task-free edges, for within-session reliability only.
+    ap_run_edges:
+      feature_table: ../derivatives/for2107_tozzi_construct/features/regional_features.tsv
+      groups: {task_free: "_connectivity__AP$"}
+      motion_runs: {task_free: [AP]}
+      evaluate: false
+    fm_run_edges:
+      feature_table: ../derivatives/for2107_tozzi_construct/features/regional_features.tsv
+      groups: {task_free: "_connectivity__FM$"}
+      motion_runs: {task_free: [FM]}
+      evaluate: false
+  reliability:
+    candidate_clusters: [2, 6]
+    pairs:
+      rest_scan_vs_task_residual: {a: rest_scan, b: rest_task_residual}
+      ap_run_vs_fm_run: {a: ap_run_edges, b: fm_run_edges, strip_a: "__AP", strip_b: "__FM"}
+  power:
+    correlation_from: construct_matched
+    # Circuit-level biotype means digitized from Tozzi et al. (2024) Fig. 3
+    # (precision about +-0.05 SD); replace with author centroids when shared.
+    biotype_means:
+      DC+SC+AC+: {D_C: 0.85, S_C: 0.73, A_C: 0.55, NS_A: -0.32, NS_C: -0.02, NTC_A: -0.40, NTC_C: -0.05, NTN_A: -0.05, NTN_C: -0.05, P_A: -0.29, C_A: -0.27, C_C: -0.15}
+      AC-: {D_C: 0.15, S_C: -0.26, A_C: -0.80, NS_A: -0.05, NS_C: 0.02, NTC_A: -0.08, NTC_C: 0.18, NTN_A: 0.03, NTN_C: -0.03, P_A: -0.03, C_A: -0.33, C_C: 0.40}
+      NSA+PA+: {D_C: -0.26, S_C: 0.05, A_C: 0.03, NS_A: 0.66, NS_C: -0.28, NTC_A: 0.47, NTC_C: -0.20, NTN_A: -0.08, NTN_C: -0.13, P_A: 0.82, C_A: 0.00, C_C: -0.30}
+      CA+: {D_C: -0.44, S_C: -0.43, A_C: -0.37, NS_A: -0.22, NS_C: 0.12, NTC_A: -0.25, NTC_C: 0.17, NTN_A: 0.30, NTN_C: -0.08, P_A: -0.12, C_A: 0.62, C_C: -0.02}
+      NTCC-CA-: {D_C: 0.12, S_C: -0.30, A_C: -0.22, NS_A: 0.10, NS_C: -0.05, NTC_A: 0.10, NTC_C: -0.88, NTN_A: 0.25, NTN_C: 0.05, P_A: -0.20, C_A: -0.62, C_C: 0.00}
+      DxSxAxNxPxCx: {D_C: -0.38, S_C: 0.40, A_C: 0.42, NS_A: 0.08, NS_C: 0.42, NTC_A: -0.18, NTC_C: 0.10, NTN_A: 0.35, NTN_C: -0.25, P_A: -0.10, C_A: -0.32, C_C: -0.22}
+    biotype_sizes: {DC+SC+AC+: 169, AC-: 161, NSA+PA+: 154, CA+: 258, NTCC-CA-: 15, DxSxAxNxPxCx: 44}
+    circuit_feature_counts: {D_C: 5, S_C: 3, A_C: 6, NS_A: 5, NS_C: 4, NTC_A: 3, NTC_C: 2, NTN_A: 3, NTN_C: 2, P_A: 3, C_A: 3, C_C: 2}
+    # Calibrate the planted effect so this design reproduces Tozzi's evidence.
+    tozzi_design: {n: 801, k: 6, p_multinormal: 0.016}
+    calibration_scales: [0.6, 0.8, 1.0, 1.2, 1.4, 1.7, 2.0]
+    calibration_replicates: 60
+    replicates: 200
+    null_draws: 500
+    scenarios:
+      # validation: Tozzi's own rest-only result was p = .485 (k=2), .283 (k=6)
+      tozzi_rest_only_k2: {n: 801, k: 2, circuits: [D_C, S_C, A_C]}
+      tozzi_rest_only_k6: {n: 801, k: 6, circuits: [D_C, S_C, A_C]}
+      for2107_construct_k6: {n_from: construct_matched, k: 6, circuits: [D_C, S_C, A_C, NS_A, NS_C, NTC_A, NTC_C, P_A]}
+      for2107_rest_k2: {n_from: rest_task_residual, k: 2, circuits: [D_C, S_C, A_C]}
+      for2107_rest_k6: {n_from: rest_task_residual, k: 6, circuits: [D_C, S_C, A_C]}
+  tozzi_reference:
+    # Tozzi et al. 2024, Supplementary Table 15 (n = 801 patients)
+    rest_only:
+      2: {silhouette: 0.189, p_multinormal: 0.485, loo_ari: 0.82, subsample_ari: 0.37}
+      6: {silhouette: 0.092, p_multinormal: 0.283, loo_ari: 0.76, subsample_ari: 0.34}
+    # main 41-feature solution (not the same features as construct_matched)
+    all_features:
+      6: {silhouette: 0.065, p_multinormal: 0.016, loo_ari: 0.80, subsample_ari: 0.35}

@@ -1,0 +1,61 @@
+project:
+  name: for2107_tozzi_reconstruction
+  root: ..
+  random_seed: 2107
+  mode: tozzi_reconstruction
+# Inputs come from other analyses' outputs (see reconstruction below).
+inputs: {}
+outputs:
+  root: ../derivatives/for2107_tozzi_reconstruction_calibrated
+selection: {}
+preprocessing: {}
+analysis:
+  n_jobs: 24
+reconstruction:
+  # Tozzi's per-feature biotype means (Supp. Fig. 5), feature codes and
+  # biotype sizes are taken from the stability configuration.
+  stability_config: stability_tozzi.yaml
+  # His task-free x task correlations across 801 patients (Supp. Fig. 14a;
+  # scripts/digitize_tozzi_suppfig14.py).
+  correlations: tozzi_taskfree_task_correlations.tsv
+  # FOR2107 patient scores of the 31 matched features: correlations within
+  # the task-free and the task block (his are not published).
+  for2107_scores: ../derivatives/for2107_tozzi_replication/construct_matched/circuit_scores.tsv
+  # Correlations calibrated to his null silhouette curve (calibrate-tozzi).
+  correlation_file: ../derivatives/for2107_tozzi_calibration/calibrated_correlation.tsv
+  # One smooth cloud without subgroups; t adds heavy tails.
+  # A heavy-tailed pool of the whole-profile kind (multivariate t) behaves
+  # like the normal one under correlation distance, so only the normal is run.
+  families:
+    gaussian: {}
+  pool_size: 1000000
+  # Profile targets may miss by one standard error, SE = SD / sqrt(n),
+  # with this within-biotype SD; correlations by 1 / sqrt(n).
+  within_biotype_sd: 1.0
+  max_iterations: 500
+  # Yardstick: Tozzi's biotypes as real subgroups (his per-feature means x the
+  # calibrated strength of the stability analysis, within-biotype correlation
+  # as the pool); their KL distance from the pool is compared with the
+  # reweighting his results need.
+  reference_biotype_scale: 1.071
+  # Datasets of his size analysed with his pipeline, per family and weighting.
+  n: 801
+  datasets: 4
+  k: 6
+  k_range: [2, 15]
+  iterations: {simulations: 500, permutations: 500, subsample: 200}
+  split_half_iterations: 20
+  # Silhouette of a large sample against normal data with the same
+  # covariance: does the population itself contain subgroups?
+  population_n: 3000
+  population_draws: 20
+  # Tozzi et al. (2024): main text, Supplementary Figures 2-6.
+  tozzi_published:
+    sizes_sorted: [258, 169, 161, 154, 44, 15]
+    silhouette_k6: 0.065
+    p_multinormal_k6: 0.016
+    p_multinormal: "< .05 for k >= 5"
+    p_permuted: "< .05"
+    loo_ari: "> 0.75 for all k; 0.80 at k = 6"
+    subsample_ari: "> 0.28 for all k; 0.35 at k = 6"
+    split_half_r: [0.95, 0.97, 0.93, 0.96, 0.79, 0.86]

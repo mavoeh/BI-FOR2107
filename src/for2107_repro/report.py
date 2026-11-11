@@ -118,7 +118,10 @@ def _figure(
     if output_dir is not None and filename is not None:
         output_dir.mkdir(parents=True, exist_ok=True)
         fig.savefig(output_dir / filename, format="svg", bbox_inches="tight")
-    return {"uri": _image_uri(fig), "caption": caption}
+    result = {"uri": _image_uri(fig), "caption": caption}
+    if filename is not None:
+        result["filename"] = filename
+    return result
 
 
 def _mean_confidence_interval(values: pd.Series, confidence: float = 0.95) -> tuple[float, float]:
@@ -802,7 +805,7 @@ def _analysis_figures(
                     color=SERIES_COLORS[index % len(SERIES_COLORS)],
                 )
             ax.set_xticks(x, labels, rotation=45, ha="right")
-            xlabel = "Published resting-state connection"
+            xlabel = "Imaging feature"
         else:
             x = np.arange(len(profiles))
             width = 0.8 / len(feature_names)
@@ -825,7 +828,7 @@ def _analysis_figures(
         ax.set(
             xlabel=xlabel,
             ylabel="Mean healthy-reference SD",
-            title="Resting-state circuit profiles by exploratory cluster",
+            title="All imaging-feature profiles by exploratory cluster",
         )
         ax.legend(frameon=False, ncol=3, loc="upper center", bbox_to_anchor=(0.5, -0.17))
         _finish_axis(ax)
@@ -833,10 +836,11 @@ def _analysis_figures(
             _figure(
                 fig,
                 (
-                    "Resting-state analogue of the column plots in Tozzi et al. Fig. 3. "
-                    "Bars show cluster means and error bars are 95% confidence intervals for those means. "
-                    "Dashed lines mark ±0.5 healthy-reference SD; this rest-only result is exploratory "
-                    "and does not reproduce the published multimodal biotypes."
+                    "All-feature analogue of the column plots in Tozzi et al. Fig. 3. "
+                    "Lines show cluster means and error bars are 95% confidence intervals for those means. "
+                    "Published resting-state edges and adapted task-derived features are shown together; "
+                    "dashed lines mark ±0.5 healthy-reference SD. This exploratory result does not by itself "
+                    "establish the published multimodal biotypes."
                 ),
                 output_dir=output_dir,
                 filename="cluster_circuit_profiles.svg",
